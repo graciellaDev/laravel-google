@@ -1,0 +1,52 @@
+version: "3.1"
+services:
+  postgres:
+      image: postgres:9.5-alpine
+      container_name: postgres
+      volumes:
+         - "./postgres:/var/lib/postgresql/data"
+      environment:
+        - POSTGRES_USER=laravel
+        - POSTGRES_PASSWORD=ern67,jG_5
+        - POSTGRES_DB=laravel
+      ports:
+       - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: falffd@test.fg
+      PGADMIN_DEFAULT_PASSWORD: sV1os56G&*2
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  backend:
+    container_name: laravel
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    restart: unless-stopped
+    tty: true
+    ports:
+        - "9000:9000"
+    working_dir: /var/www
+    volumes:
+        - ./backend:/var/www
+        - ./docker/backend/php.ini:/usr/local/etc/php/php.ini
+    depends_on:
+        - postgres
+
+  nginx:
+    container_name: php-fpm
+    image: nginx:alpine
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80" 
+      - "4430:443"
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d 
